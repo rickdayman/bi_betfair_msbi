@@ -1,0 +1,27 @@
+﻿CREATE TABLE [dbo].[event_odds] (
+    [event_id]             INT            NULL,
+    [event_name]           VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [home_team]            VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [away_team]            VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [market_time]          DATETIME2 (0)  NULL,
+    [match_odds_winner]    VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [Home]                 NUMERIC (8, 2) NULL,
+    [Draw]                 NUMERIC (8, 2) NULL,
+    [Away]                 NUMERIC (8, 2) NULL,
+    [home_lay]             NUMERIC (9, 2) NULL,
+    [draw_lay]             NUMERIC (9, 2) NULL,
+    [away_lay]             NUMERIC (9, 2) NULL,
+    [over_under_25_winner] VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [under_25_goals]       NUMERIC (8, 2) NULL,
+    [over_25_goals]        NUMERIC (8, 2) NULL,
+    [under_25_goals_lay]   NUMERIC (9, 2) NULL,
+    [over_under_35_winner] VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [under_35_goals]       NUMERIC (8, 2) NULL,
+    [over_35_goals]        NUMERIC (8, 2) NULL,
+    [under_35_goals_lay]   NUMERIC (9, 2) NULL,
+    [over_under_45_winner] VARCHAR (50)   COLLATE Latin1_General_100_BIN2_UTF8 NULL,
+    [under_45_goals]       NUMERIC (8, 2) NULL,
+    [over_45_goals]        NUMERIC (8, 2) NULL,
+    [under_45_goals_lay]   NUMERIC (9, 2) NULL
+);
+

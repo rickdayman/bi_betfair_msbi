@@ -1,0 +1,151 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>bi_betfair_database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{00f44d75-028b-43ce-babf-7ff9338c7664}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>bi_betfair_database</RootNamespace>
+    <AssemblyName>bi_betfair_database</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="stg\" />
+    <Folder Include="stg\Tables\" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="pbi\" />
+    <Folder Include="pbi\Views\" />
+    <Folder Include="Security\" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="etl\" />
+    <Folder Include="etl\Stored Procedures\" />
+    <Folder Include="etl\Tables\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="stg\Tables\betfair_market_odds.sql" />
+    <Build Include="dbo\Tables\event_details.sql" />
+    <Build Include="stg\Tables\football_data.sql" />
+    <Build Include="dbo\Tables\bet_selection.sql" />
+    <Build Include="dbo\Tables\football_results.sql" />
+    <Build Include="dbo\Tables\bet_market_odds_drift_pre_kickoff.sql" />
+    <Build Include="dbo\Tables\market_odds_hour_before_game.sql" />
+    <Build Include="dbo\Tables\event_odds.sql" />
+    <Build Include="dbo\Tables\bet_market_odds.sql" />
+    <Build Include="dbo\Tables\bet_markets.sql" />
+    <Build Include="dbo\Tables\bet_market_results.sql" />
+    <Build Include="dbo\Tables\event_goes_in_play.sql" />
+    <Build Include="dbo\Tables\bet_trade_dates.sql" />
+    <Build Include="dbo\Tables\bet_spread_points.sql" />
+    <Build Include="stg\Tables\betfair_market_odds_original.sql" />
+    <Build Include="pbi\Views\bet_market_odds.sql" />
+    <Build Include="pbi\Views\bet_markets.sql" />
+    <Build Include="pbi\Views\event_details.sql" />
+    <Build Include="pbi\Views\bet_spread_points.sql" />
+    <Build Include="pbi\Views\bet_trade_dates.sql" />
+    <Build Include="pbi\Views\bet_selection.sql" />
+    <Build Include="pbi\Views\market_dates.sql" />
+    <Build Include="Security\db_bi_user.sql" />
+    <Build Include="Security\db_bi_user_1.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_event_odds.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_trade_dates.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_selection.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_market_results.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_markets.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_market_odds.sql" />
+    <Build Include="dbo\Stored Procedures\sp_clean_stg_betfair_market_odds.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_dw.sql" />
+    <Build Include="dbo\Stored Procedures\sp_clean_stg_football_data.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_table_indexes.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_event_details.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_event_goes_in_play.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_market_odds_hour_before_game.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_market_odds_drift_pre_kickoff.sql" />
+    <Build Include="etl\Stored Procedures\sp_azure_execute_sql.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_reference_tables.sql" />
+    <Build Include="Security\etl.sql" />
+    <Build Include="Security\pbi.sql" />
+    <Build Include="Security\stg.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_scalp_on_under_market.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_match_odds_market.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_loop_over_tests.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_drift_on_ou45_market.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_draw_from_odds_value.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_by_odds_range_over_under.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_by_odds_range_draw_by_home_favourite.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_by_odds_range_away_by_away_favourite.sql" />
+    <Build Include="etl\Tables\processed_compressed_data_file_list.sql" />
+    <Build Include="etl\Tables\processed_betfair_odds_csv_list.sql" />
+    <Build Include="etl\Tables\betfair_odds_csv_list.sql" />
+    <Build Include="dbo\Tables\odds_buckets.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_odds_buckets.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_lay_at_value.sql" />
+    <Build Include="stg\Tables\football_goal_data.sql" />
+    <Build Include="etl\Tables\check_runtime.sql" />
+    <Build Include="dbo\Tables\test_betting_results.sql" />
+    <Build Include="dbo\Tables\market_dates.sql" />
+    <Build Include="dbo\Tables\football_goal_times.sql" />
+    <Build Include="dbo\Tables\event_over_under_odds.sql" />
+    <Build Include="dbo\Tables\event_match_odds.sql" />
+    <Build Include="dbo\Tables\event_goal_times.sql" />
+    <Build Include="dbo\Tables\bet_market_goals_close.sql" />
+    <Build Include="dbo\Tables\back_test_loop_over_after_x_mins_by_goals_scored.sql" />
+    <Build Include="etl\Stored Procedures\sp_empty_tables.sql" />
+    <Build Include="dbo\Stored Procedures\sp_clean_stg_football_goal_data.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_event_goal_times.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_market_odds_missing_odds.sql" />
+    <Build Include="dbo\Stored Procedures\sp_build_bet_market_goals_close.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_x_goals_after_y_minutes.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_loop_over_after_x_mins_by_goals_scored.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_after_x_mins_by_goals_scored.sql" />
+    <Build Include="dbo\Stored Procedures\sp_back_test_after_x_mins.sql" />
+  </ItemGroup>
+</Project>

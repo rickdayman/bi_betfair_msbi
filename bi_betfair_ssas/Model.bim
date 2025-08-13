@@ -1,0 +1,754 @@
+{
+  "name": "SemanticModel",
+  "compatibilityLevel": 1600,
+  "model": {
+    "culture": "en-NZ",
+    "dataSources": [
+      {
+        "type": "structured",
+        "name": "dbFOOTBALL",
+        "connectionDetails": {
+          "protocol": "tds",
+          "address": {
+            "server": "RICKVICTUS",
+            "database": "FOOTBALL"
+          },
+          "authentication": null,
+          "query": null
+        },
+        "credential": {
+          "AuthenticationKind": "UsernamePassword",
+          "kind": "SQL",
+          "path": "rickvictus;FOOTBALL",
+          "Username": "db_bi_user",
+          "EncryptConnection": false
+        }
+      }
+    ],
+    "tables": [
+      {
+        "name": "market_dates",
+        "columns": [
+          {
+            "name": "market_date_month_year",
+            "dataType": "int64",
+            "sourceColumn": "market_date_month_year"
+          },
+          {
+            "name": "market_date_month_year_desc",
+            "dataType": "string",
+            "sourceColumn": "market_date_month_year_desc",
+            "sortByColumn": "market_date_month_year"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_market_dates = Source{[Schema=\"pbi\",Item=\"market_dates\"]}[Data]",
+                "in",
+                "    pbi_market_dates"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "event_details",
+        "columns": [
+          {
+            "name": "event_id",
+            "dataType": "int64",
+            "sourceColumn": "event_id"
+          },
+          {
+            "name": "event_name",
+            "dataType": "string",
+            "sourceColumn": "event_name"
+          },
+          {
+            "name": "market_time",
+            "dataType": "dateTime",
+            "sourceColumn": "market_time",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "market_date_month_year",
+            "dataType": "int64",
+            "sourceColumn": "market_date_month_year"
+          },
+          {
+            "name": "market_date_month_year_desc",
+            "dataType": "string",
+            "sourceColumn": "market_date_month_year_desc"
+          },
+          {
+            "name": "home_team",
+            "dataType": "string",
+            "sourceColumn": "home_team"
+          },
+          {
+            "name": "away_team",
+            "dataType": "string",
+            "sourceColumn": "away_team"
+          },
+          {
+            "name": "league_name",
+            "dataType": "string",
+            "sourceColumn": "league_name"
+          },
+          {
+            "name": "event_goes_in_play",
+            "dataType": "dateTime",
+            "sourceColumn": "event_goes_in_play",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "match_odds_winner",
+            "dataType": "string",
+            "sourceColumn": "match_odds_winner"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_event_details = Source{[Schema=\"pbi\",Item=\"event_details\"]}[Data]",
+                "in",
+                "    pbi_event_details"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Home odds at start",
+            "expression": [
+              " ",
+              "VAR MinTimestamp = ",
+              "    CALCULATE(",
+              "        MAX(bet_market_odds[odds_timestamp]),",
+              "        bet_market_odds[market_in_play] = \"False\",",
+              "        bet_market_odds[runner_name_display] = \"Home\"",
+              "",
+              "    )",
+              "RETURN",
+              "    CALCULATE(",
+              "        FIRSTNONBLANK(bet_market_odds[odds_price_traded], 1),",
+              "        bet_market_odds[odds_timestamp] = MinTimestamp,",
+              "        bet_market_odds[market_in_play] = \"False\",",
+              "        bet_market_odds[runner_name_display] = \"Home\"",
+              "    )"
+            ]
+          },
+          {
+            "name": "Home Profit/Loss",
+            "expression": [
+              " ",
+              "SUMX(event_details",
+              "    ,",
+              "    VAR CurrentMarketResult = event_details[match_odds_winner]",
+              "    RETURN",
+              "        SWITCH(",
+              "            TRUE(),",
+              "            CurrentMarketResult = \"Home\", ((event_details[Home odds at start] - 1.0) * 10.0) * 0.95,",
+              "            CurrentMarketResult <> \"Home\", -10.0,",
+              "            BLANK()",
+              "        )",
+              ")"
+            ]
+          },
+          {
+            "name": "Draw odds at start",
+            "expression": [
+              " ",
+              "VAR MinTimestamp = ",
+              "    CALCULATE(",
+              "        MAX(bet_market_odds[odds_timestamp]),",
+              "        bet_market_odds[market_in_play] = \"False\",",
+              "        bet_market_odds[runner_name_display] = \"The Draw\"",
+              "",
+              "    )",
+              "RETURN",
+              "    CALCULATE(",
+              "        FIRSTNONBLANK(bet_market_odds[odds_price_traded], 1),",
+              "        bet_market_odds[odds_timestamp] = MinTimestamp,",
+              "        bet_market_odds[market_in_play] = \"False\",",
+              "        bet_market_odds[runner_name_display] = \"The Draw\"",
+              "    )"
+            ]
+          },
+          {
+            "name": "Away odds at start",
+            "expression": [
+              " ",
+              "VAR MinTimestamp = ",
+              "    CALCULATE(",
+              "        MAX(bet_market_odds[odds_timestamp]),",
+              "        bet_market_odds[market_in_play] = \"False\",",
+              "        bet_market_odds[runner_name_display] = \"Away\"",
+              "",
+              "    )",
+              "RETURN",
+              "    CALCULATE(",
+              "        FIRSTNONBLANK(bet_market_odds[odds_price_traded], 1),",
+              "        bet_market_odds[odds_timestamp] = MinTimestamp,",
+              "        bet_market_odds[market_in_play] = \"False\",",
+              "        bet_market_odds[runner_name_display] = \"Away\"",
+              "    )"
+            ]
+          },
+          {
+            "name": "Draw Profit/Loss",
+            "expression": [
+              " ",
+              "SUMX(event_details",
+              "    ,",
+              "    VAR CurrentMarketResult = event_details[match_odds_winner]",
+              "    RETURN",
+              "        SWITCH(",
+              "            TRUE(),",
+              "            CurrentMarketResult = \"The Draw\", ((event_details[Draw odds at start] - 1.0) * 10.0) * 0.95,",
+              "            CurrentMarketResult <> \"The Draw\", -10.0,",
+              "            BLANK()",
+              "        )",
+              ")"
+            ]
+          },
+          {
+            "name": "Away Profit/Loss",
+            "expression": [
+              " ",
+              "SUMX(event_details",
+              "    ,",
+              "    VAR CurrentMarketResult = event_details[match_odds_winner]",
+              "    RETURN",
+              "        SWITCH(",
+              "            TRUE(),",
+              "            CurrentMarketResult = \"Away\", ((event_details[Away odds at start] - 1.0) * 10.0) * 0.95,",
+              "            CurrentMarketResult <> \"Away\", -10.0,",
+              "            BLANK()",
+              "        )",
+              ")"
+            ]
+          }
+        ]
+      },
+      {
+        "name": "bet_trade_dates",
+        "columns": [
+          {
+            "name": "bet_trade_date_id",
+            "dataType": "int64",
+            "sourceColumn": "bet_trade_date_id"
+          },
+          {
+            "name": "bet_trade_date",
+            "dataType": "dateTime",
+            "sourceColumn": "bet_trade_date",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "date_year",
+            "dataType": "int64",
+            "sourceColumn": "date_year"
+          },
+          {
+            "name": "date_month_number",
+            "dataType": "int64",
+            "sourceColumn": "date_month_number"
+          },
+          {
+            "name": "date_month_year",
+            "dataType": "int64",
+            "sourceColumn": "date_month_year"
+          },
+          {
+            "name": "date_month_desc_short",
+            "dataType": "string",
+            "sourceColumn": "date_month_desc_short",
+            "sortByColumn": "date_month_number"
+          },
+          {
+            "name": "date_month_desc_long",
+            "dataType": "string",
+            "sourceColumn": "date_month_desc_long",
+            "sortByColumn": "date_month_number"
+          },
+          {
+            "name": "date_month_year_desc",
+            "dataType": "string",
+            "sourceColumn": "date_month_year_desc",
+            "sortByColumn": "date_month_year"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_bet_trade_dates = Source{[Schema=\"pbi\",Item=\"bet_trade_dates\"]}[Data]",
+                "in",
+                "    pbi_bet_trade_dates"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "bet_spread_points",
+        "columns": [
+          {
+            "name": "bet_spread_point",
+            "dataType": "int64",
+            "sourceColumn": "bet_spread_point"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_bet_spread_points = Source{[Schema=\"pbi\",Item=\"bet_spread_points\"]}[Data]",
+                "in",
+                "    pbi_bet_spread_points"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Spread",
+            "expression": " SELECTEDVALUE(bet_spread_points[bet_spread_point])"
+          }
+        ]
+      },
+      {
+        "name": "bet_selection",
+        "columns": [
+          {
+            "name": "bet_selection_id",
+            "dataType": "int64",
+            "sourceColumn": "bet_selection_id"
+          },
+          {
+            "name": "market_type",
+            "dataType": "string",
+            "sourceColumn": "market_type"
+          },
+          {
+            "name": "selection_desc",
+            "dataType": "string",
+            "sourceColumn": "selection_desc"
+          },
+          {
+            "name": "is_drift_down",
+            "dataType": "int64",
+            "sourceColumn": "is_drift_down"
+          },
+          {
+            "name": "is_drift_up",
+            "dataType": "int64",
+            "sourceColumn": "is_drift_up"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_bet_selection = Source{[Schema=\"pbi\",Item=\"bet_selection\"]}[Data]",
+                "in",
+                "    pbi_bet_selection"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "bet_markets",
+        "columns": [
+          {
+            "name": "market_id",
+            "dataType": "int64",
+            "sourceColumn": "market_id"
+          },
+          {
+            "name": "market_type",
+            "dataType": "string",
+            "sourceColumn": "market_type"
+          },
+          {
+            "name": "event_id",
+            "dataType": "int64",
+            "sourceColumn": "event_id"
+          },
+          {
+            "name": "event_name",
+            "dataType": "string",
+            "sourceColumn": "event_name"
+          },
+          {
+            "name": "market_time",
+            "dataType": "dateTime",
+            "sourceColumn": "market_time",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "market_date_month_year",
+            "dataType": "int64",
+            "sourceColumn": "market_date_month_year"
+          },
+          {
+            "name": "market_date_month_year_desc",
+            "dataType": "string",
+            "sourceColumn": "market_date_month_year_desc",
+            "sortByColumn": "market_date_month_year"
+          },
+          {
+            "name": "home_team",
+            "dataType": "string",
+            "sourceColumn": "home_team"
+          },
+          {
+            "name": "away_team",
+            "dataType": "string",
+            "sourceColumn": "away_team"
+          },
+          {
+            "name": "market_open_timestamp",
+            "dataType": "dateTime",
+            "sourceColumn": "market_open_timestamp",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "market_inplay_timestamp",
+            "dataType": "dateTime",
+            "sourceColumn": "market_inplay_timestamp",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "pre_inplay_timestamp_count",
+            "dataType": "int64",
+            "sourceColumn": "pre_inplay_timestamp_count"
+          },
+          {
+            "name": "is_open_24hrs_before_kickoff",
+            "dataType": "int64",
+            "sourceColumn": "is_open_24hrs_before_kickoff"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_bet_markets = Source{[Schema=\"pbi\",Item=\"bet_markets\"]}[Data]",
+                "in",
+                "    pbi_bet_markets"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "name": "bet_market_odds",
+        "columns": [
+          {
+            "name": "bet_market_odds_id",
+            "dataType": "int64",
+            "sourceColumn": "bet_market_odds_id"
+          },
+          {
+            "name": "market_id",
+            "dataType": "int64",
+            "sourceColumn": "market_id"
+          },
+          {
+            "name": "odds_timestamp",
+            "dataType": "dateTime",
+            "sourceColumn": "odds_timestamp"
+          },
+          {
+            "name": "odds_timestamp_display_id",
+            "dataType": "int64",
+            "sourceColumn": "odds_timestamp_display_id"
+          },
+          {
+            "name": "odds_timestamp_display",
+            "dataType": "dateTime",
+            "sourceColumn": "odds_timestamp_display",
+            "formatString": "dd/MM/yyyy HH:mm"
+          },
+          {
+            "name": "market_status",
+            "dataType": "string",
+            "sourceColumn": "market_status"
+          },
+          {
+            "name": "market_in_play",
+            "dataType": "string",
+            "sourceColumn": "market_in_play"
+          },
+          {
+            "name": "bet_selection_id",
+            "dataType": "int64",
+            "sourceColumn": "bet_selection_id"
+          },
+          {
+            "name": "runner_id",
+            "dataType": "int64",
+            "sourceColumn": "runner_id"
+          },
+          {
+            "name": "runner_name",
+            "dataType": "string",
+            "sourceColumn": "runner_name"
+          },
+          {
+            "name": "runner_name_display",
+            "dataType": "string",
+            "sourceColumn": "runner_name_display"
+          },
+          {
+            "name": "odds_price_traded",
+            "dataType": "double",
+            "sourceColumn": "odds_price_traded"
+          },
+          {
+            "name": "odds_price_traded_lay",
+            "dataType": "double",
+            "sourceColumn": "odds_price_traded_lay"
+          },
+          {
+            "name": "matched_bets_order",
+            "dataType": "int64",
+            "sourceColumn": "matched_bets_order"
+          },
+          {
+            "name": "market_result",
+            "dataType": "string",
+            "sourceColumn": "market_result"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Partition",
+            "dataView": "full",
+            "source": {
+              "type": "m",
+              "expression": [
+                "let",
+                "    Source = dbFOOTBALL,",
+                "    pbi_bet_market_odds = Source{[Schema=\"pbi\",Item=\"bet_market_odds\"]}[Data]",
+                "in",
+                "    pbi_bet_market_odds"
+              ]
+            }
+          }
+        ],
+        "measures": [
+          {
+            "name": "Bet count",
+            "expression": " DISTINCTCOUNT(bet_market_odds[market_id])"
+          },
+          {
+            "name": "Bet odds at start",
+            "expression": [
+              " ",
+              "VAR MinTimestamp = ",
+              "    CALCULATE(",
+              "        MIN(bet_market_odds[odds_timestamp]),",
+              "        bet_market_odds[market_in_play] = \"True\"",
+              "    )",
+              "RETURN",
+              "    CALCULATE(",
+              "        FIRSTNONBLANK(bet_market_odds[odds_price_traded], 1),",
+              "        bet_market_odds[odds_timestamp] = MinTimestamp,",
+              "        bet_market_odds[market_in_play] = \"True\"",
+              "    )"
+            ]
+          },
+          {
+            "name": "Cash Out",
+            "expression": [
+              " ",
+              "SUMX(",
+              "    CROSSJOIN(",
+              "        VALUES(event_details[event_name]),",
+              "        VALUES(event_details[market_time]),",
+              "        VALUES(bet_market_odds[runner_name_display])",
+              "    ),",
+              "    VAR LayOdds = bet_market_odds[Lay value for scalp]",
+              "    VAR BackOdds = bet_market_odds[Bet odds at start]",
+              "    VAR ScalpResult = bet_market_odds[Scalp result]",
+              "    RETURN",
+              "        SWITCH(",
+              "            TRUE(),",
+              "            ISBLANK(ScalpResult) || ISBLANK(LayOdds) || ISBLANK(BackOdds), BLANK(),",
+              "            ScalpResult = \"Win\", 10.0 - 10.0 * DIVIDE(LayOdds, BackOdds, 0),",
+              "            ScalpResult = \"Lose\", -10.0,",
+              "            BLANK()",
+              "        )",
+              ")"
+            ]
+          },
+          {
+            "name": "Lay line",
+            "expression": [
+              " ",
+              "VAR MinDate =",
+              "    CALCULATE(",
+              "        MIN(bet_market_odds[odds_timestamp]),",
+              "        bet_market_odds[market_in_play] = \"True\"",
+              "    )",
+              "RETURN",
+              "    CALCULATE(",
+              "        bet_market_odds[Lay value for scalp], -- Replace with your measure or expression",
+              "        bet_market_odds[odds_timestamp] = MinDate,",
+              "        ALL(bet_market_odds[odds_timestamp])",
+              "    )"
+            ]
+          },
+          {
+            "name": "Lay value for scalp",
+            "expression": [
+              " ",
+              "VAR bet_odds = bet_market_odds[Bet odds at start]",
+              "VAR spread_points = bet_spread_points[Spread]",
+              "VAR multiplier = ",
+              "    SWITCH(",
+              "        TRUE(),",
+              "        bet_odds >= 1.01 && bet_odds < 2.00, 0.01,",
+              "        bet_odds >= 2.00 && bet_odds < 3.00, 0.02,",
+              "        bet_odds >= 3.00 && bet_odds < 4.00, 0.05,",
+              "        bet_odds >= 4.00 && bet_odds < 6.00, 0.1,",
+              "        bet_odds >= 6.00 && bet_odds < 10.00, 0.2,",
+              "        bet_odds >= 10.00 && bet_odds < 20.00, 0.5,",
+              "        bet_odds >= 20.00 && bet_odds < 29.00, 1.00,",
+              "        bet_odds >= 30.00 && bet_odds < 48.00, 2.00,",
+              "        bet_odds >= 50.00 && bet_odds < 95.00, 5.00,",
+              "        bet_odds >= 100.00 && bet_odds < 5000.00, 10.00,",
+              "        BLANK()",
+              "    )",
+              "RETURN",
+              "bet_odds - (multiplier * spread_points)"
+            ]
+          },
+          {
+            "name": "Lowest Lay Odds",
+            "expression": " CALCULATE(MIN(bet_market_odds[odds_price_traded_lay]), bet_market_odds[market_in_play] = \"True\")"
+          },
+          {
+            "name": "Profit/Loss",
+            "expression": [
+              " ",
+              "SUMX(",
+              "    CROSSJOIN(",
+              "        VALUES(event_details[event_name]),",
+              "        VALUES(event_details[market_time]),",
+              "        VALUES(bet_market_odds[market_result]),",
+              "        VALUES(bet_market_odds[runner_name_display])",
+              "    ),",
+              "    VAR CurrentMarketResult = bet_market_odds[market_result]",
+              "    RETURN",
+              "        SWITCH(",
+              "            TRUE(),",
+              "            ISBLANK(bet_market_odds[Scalp result]), BLANK(),",
+              "            bet_market_odds[Scalp result] = \"Win\" && CurrentMarketResult = \"WINNER\",",
+              "                (((bet_market_odds[Bet Odds at start] - 1.0) * 10) - ((bet_market_odds[Lay value for scalp] - 1.0) * 10.0)) * 0.95,",
+              "            bet_market_odds[Scalp result] = \"Win\" && CurrentMarketResult = \"LOSER\", 0.00,",
+              "            bet_market_odds[Scalp result] = \"Lose\", -10.0,",
+              "            BLANK()",
+              "        )",
+              ")"
+            ]
+          },
+          {
+            "name": "Scalp result",
+            "expression": [
+              " ",
+              "SWITCH(",
+              "        TRUE()",
+              "        ,ISBLANK(bet_market_odds[Lowest Lay Odds]), BLANK()",
+              "        ,bet_market_odds[Lowest Lay Odds] <= bet_market_odds[Lay value for scalp] || SELECTEDVALUE(bet_market_odds[market_result]) = \"WINNER\", \"Win\"",
+              "        ,bet_market_odds[Lowest Lay Odds] > bet_market_odds[Lay value for scalp], \"Lose\"        ",
+              "        ,BLANK()",
+              ")"
+            ]
+          }
+        ]
+      }
+    ],
+    "relationships": [
+      {
+        "name": "9f34e812-19a7-49b8-b304-532d5f549ea0",
+        "fromTable": "bet_market_odds",
+        "fromColumn": "odds_timestamp_display_id",
+        "toTable": "bet_trade_dates",
+        "toColumn": "bet_trade_date_id"
+      },
+      {
+        "name": "f613a0c6-104b-4086-a2f1-99d2d52c6ac4",
+        "fromTable": "bet_market_odds",
+        "fromColumn": "bet_selection_id",
+        "toTable": "bet_selection",
+        "toColumn": "bet_selection_id"
+      },
+      {
+        "name": "ed47acab-7fd9-4c2f-ac46-2fecd6a18c7e",
+        "fromTable": "bet_market_odds",
+        "fromColumn": "market_id",
+        "toTable": "bet_markets",
+        "toColumn": "market_id"
+      },
+      {
+        "name": "3d4f22c2-3040-435e-b722-6cbfa43fa0b3",
+        "fromTable": "bet_markets",
+        "fromColumn": "event_id",
+        "toTable": "event_details",
+        "toColumn": "event_id"
+      },
+      {
+        "name": "aa3007e1-f966-4394-8dd7-7b68bf7f7d2f",
+        "fromTable": "event_details",
+        "fromColumn": "market_date_month_year",
+        "toTable": "market_dates",
+        "toColumn": "market_date_month_year"
+      }
+    ],
+    "annotations": [
+      {
+        "name": "ClientCompatibilityLevel",
+        "value": "700"
+      }
+    ]
+  },
+  "id": "SemanticModel"
+}
